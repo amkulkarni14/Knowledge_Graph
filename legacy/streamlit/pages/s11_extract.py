@@ -2,8 +2,8 @@ import pandas as pd
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.config import settings
-from kg.stages import s11_extraction as s11
+from app.core.config import settings
+from app.services.build.stages import s11_extraction as s11
 
 ctx = stage_header(11)
 if guard(ctx, 10):

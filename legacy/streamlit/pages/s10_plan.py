@@ -2,7 +2,7 @@ import streamlit as st
 
 from components.graph_view import show_ontology
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.stages import s10_build_plan as s10
+from app.services.ontology.stages import s10_build_plan as s10
 
 ctx = stage_header(10)
 if guard(ctx, 9):

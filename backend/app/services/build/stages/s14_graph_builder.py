@@ -15,8 +15,9 @@ from datetime import datetime, timezone
 
 import networkx as nx
 
-from kg.core.context import PipelineContext
-from kg.core.transform import CoercionError, canon_key, coerce
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.graph_builder.id_generator import canon_key
+from kg_pipeline.preprocessing.normalizer import CoercionError, coerce
 
 
 def run(ctx: PipelineContext) -> nx.MultiDiGraph:

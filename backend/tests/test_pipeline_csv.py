@@ -10,12 +10,12 @@ import time
 import pytest
 from conftest import ROOT, csv_file
 
-from kg.config import SAMPLE_FILES_DIR, settings
-from kg.core.context import PipelineContext
-from kg.pipeline import run_all
-from kg.sources.csv_source import CsvImportError, CsvUpload, read_directory
-from kg.stages import (s01_scope, s02_connect, s03_schema_extraction, s04_schema_analysis, s05_manual_ontology,
-                       s06_ai_suggestions)
+from app.core.config import SAMPLE_FILES_DIR, settings
+from app.domain.pipeline_context import PipelineContext
+from app.services.build.orchestrator import run_all
+from kg_pipeline.preprocessing.connectors.csv_source import CsvImportError, CsvUpload, read_directory
+from app.services.sources.stages import s01_scope, s02_connect, s03_schema_extraction, s04_schema_analysis
+from app.services.ontology.stages import s05_manual_ontology, s06_ai_suggestions
 
 
 def run_csv(files, project="Test Project") -> PipelineContext:
@@ -288,7 +288,7 @@ class TestStage5Draft:
     def test_default_ids_are_always_valid(self, project, expected):
         oid, namespace, name = s05_manual_ontology.default_ids(project)
         assert oid == expected and namespace == f"com.example.{expected}" and name
-        from kg.core.ontology_models import Ontology
+        from kg_pipeline.models.ontology_models import Ontology
         Ontology(ontology_id=oid, namespace=namespace, name=name)
 
 

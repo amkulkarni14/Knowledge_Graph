@@ -12,11 +12,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-from kg.core.context import PipelineContext
-from kg.core.ontology_models import (AttributeDef, ClassDef, ClassMapping, DataType, Ontology, Origin,
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.models.ontology_models import (AttributeDef, ClassDef, ClassMapping, DataType, Ontology, Origin,
                                      RelationshipDef, RelationshipMapping)
-from kg.core.schema_models import SchemaCatalog
-from kg.stages.s06_ai_suggestions import ReviewItem
+from kg_pipeline.models.schema_models import SchemaCatalog
+from app.services.ontology.stages.s06_ai_suggestions import ReviewItem
 
 
 def default_decisions(items: list[ReviewItem]) -> dict[str, dict]:

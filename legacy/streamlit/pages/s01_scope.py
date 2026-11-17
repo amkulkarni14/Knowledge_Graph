@@ -1,7 +1,7 @@
 import streamlit as st
 
 from components.layout import activity, next_stage, run_stage, stage_header
-from kg.stages import s01_scope
+from app.services.sources.stages import s01_scope
 
 ctx = stage_header(1)
 base = ctx.scope or s01_scope.default_scope()

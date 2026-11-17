@@ -3,10 +3,10 @@ import streamlit as st
 
 from components.bootstrap import get_ctx, reset_ctx
 from components.layout import BY_NO, PAGE_FILES, STAGE_DOCS, flow_strip, run_stage, table
-from kg.config import SAMPLE_FILES_DIR
-from kg.core.context import PARTS, STAGES
-from kg.pipeline import run_all
-from kg.sources.csv_source import read_directory
+from app.core.config import SAMPLE_FILES_DIR
+from app.core.stage_registry import PARTS, STAGES
+from app.services.build.orchestrator import run_all
+from kg_pipeline.preprocessing.connectors.csv_source import read_directory
 
 ctx = get_ctx()
 

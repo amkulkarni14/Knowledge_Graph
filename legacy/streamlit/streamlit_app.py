@@ -1,11 +1,15 @@
-"""Streamlit entry point:  streamlit run ui/app.py   (run from the project root)."""
+"""Legacy Streamlit entry point. Run from this folder so .streamlit/config.toml is picked up:
+
+    cd legacy/streamlit
+    streamlit run streamlit_app.py
+"""
 from __future__ import annotations
 
 import streamlit as st
 
-from components.bootstrap import get_ctx  # noqa: F401  (also puts src/ on sys.path)
+from components.bootstrap import get_ctx  # noqa: F401  (also puts backend/ and data_pipeline/src on sys.path)
 from components.layout import PAGE_FILES, inject_css, sidebar_status
-from kg.core.context import PARTS, STAGES
+from app.core.stage_registry import PARTS, STAGES
 
 st.set_page_config(page_title="Enterprise Knowledge Graph Studio", page_icon="🕸️", layout="wide")
 inject_css()

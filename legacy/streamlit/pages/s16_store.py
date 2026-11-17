@@ -3,8 +3,9 @@ import os
 import streamlit as st
 
 from components.layout import activity, guard, run_stage, stage_header, table
-from kg.config import settings
-from kg.stages import s16_graph_persistence as s16
+from app.core.config import settings
+from app.services.build.stages import s16_graph_persistence as s16
+from app.repositories.file import snapshot_store
 
 ctx = stage_header(16)
 if guard(ctx, 14) and ctx.graph_report is None:
@@ -51,7 +52,7 @@ elif ctx.is_done(14):
 
 oid = ctx.approved_ontology.ontology_id if ctx.approved_ontology else None
 if oid:
-    builds = s16.list_builds(oid)
+    builds = snapshot_store.list_builds(oid)
     if builds:
         st.subheader("Graph versions in the store")
         table(builds)
@@ -60,7 +61,7 @@ if oid:
             c1, c2 = st.columns([2, 1])
             target = c1.selectbox("Roll back / promote CURRENT to", valid)
             if c2.button("Set as CURRENT"):
-                run_stage(s16.set_current, oid, target, success=f"CURRENT -> {target}")
+                run_stage(snapshot_store.set_current, oid, target, success=f"CURRENT -> {target}")
                 st.rerun()
 st.caption(f"Graph store root: `{settings.graph_store_dir}`")
 activity(ctx, 16)

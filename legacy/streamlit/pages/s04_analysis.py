@@ -2,8 +2,9 @@ import streamlit as st
 
 from components.graph_view import show_html
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg import viz
-from kg.stages import s04_schema_analysis as s4
+from components import viz
+from app.services.sources.stages import s04_schema_analysis as s4
+from kg_pipeline.metadata_extractor.key_detector import relationship_candidates
 
 ctx = stage_header(4)
 if guard(ctx, 3):
@@ -23,7 +24,7 @@ if guard(ctx, 3):
                        "red dashed = looks like a link but has NO declared foreign key.")
         with c2:
             st.subheader("Relationship candidates")
-            table(s4.relationship_candidates(ctx.catalog, a), height=420)
+            table(relationship_candidates(ctx.catalog, a), height=420)
         und = [c for r in a for c in r["undeclared_fk"]]
         if und:
             st.warning("Undeclared links found: "

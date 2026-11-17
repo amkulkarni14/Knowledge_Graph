@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Iterator, Optional, Protocol
 
-from kg.core.schema_models import SchemaCatalog
+from kg_pipeline.models.schema_models import SchemaCatalog
 
 
 class DataSource(Protocol):

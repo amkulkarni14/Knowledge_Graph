@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from kg.core.context import PipelineContext
+from app.domain.pipeline_context import PipelineContext
 
 
 class ScopeSheet(BaseModel):

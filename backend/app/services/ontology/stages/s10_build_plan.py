@@ -8,8 +8,8 @@ Out  : ctx.build_plan = {"nodes": [...], "edges": [...], "tables": {table: [colu
 """
 from __future__ import annotations
 
-from kg.core.context import PipelineContext
-from kg.core.ontology_models import Ontology
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.models.ontology_models import Ontology
 
 
 def make_plan(onto: Ontology) -> dict:

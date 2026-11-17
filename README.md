@@ -12,10 +12,11 @@ its output and what actually happened.
 python -m venv .venv ; .venv\Scripts\activate
 pip install -r requirements.txt
 
-# UI (run from the project root so .streamlit/config.toml is picked up)
-streamlit run ui/app.py
+# Legacy Streamlit UI (run from its folder so .streamlit/config.toml is picked up)
+cd legacy\streamlit
+streamlit run streamlit_app.py
 
-# Headless, same code as the UI
+# Headless, same code as the UI (from the project root)
 python scripts/run_pipeline.py              # built-in sample data + offline AI response
 python scripts/run_pipeline.py --postgres   # PG* variables from .env (read-only user)
 python scripts/run_pipeline.py --use-groq   # live Groq call (GROQ_API_KEY)
@@ -23,10 +24,10 @@ python scripts/run_pipeline.py --csv-dir data/samples/customer360   # every .csv
 
 # Tests (200): CSV source, ontology drafting, all 16 stages on files, the Streamlit screens, the CLI
 pip install -r requirements-dev.txt
-python -m pytest tests
+python -m pytest                            # from the project root; pytest.ini finds all three test folders
 ```
 
-To try a real database: `psql -d retail -f sql/01_source_schema.sql`, copy `.env.example` to
+To try a real database: `psql -d retail -f database/postgres/seed/01_source_schema.sql`, copy `.env.example` to
 `.env`, fill the `PG*` values, then choose **PostgreSQL** in Stage 2.
 
 To try files: Stage 2 → **Upload CSV files** → select several files at once (or use the bundled Customer 360
@@ -35,63 +36,52 @@ examples), then Stage 5 → **🪄 Draft from the schema**. See [Uploading CSV f
 ## Folder structure
 
 ```
-Enterprices_KG/
-├── .env.example                 settings template (secrets come from env / vault, never code)
-├── .streamlit/config.toml       UI theme
-├── requirements.txt
-├── sql/
-│   ├── 01_source_schema.sql     sample retail source + indexes + read-only role
-│   └── 02_kg_meta_schema.sql    production DDL for the ontology repository / build metadata
-├── data/
-│   ├── ontologies/retail_manual_draft.json   example manual draft (Stage 5)
-│   ├── fixtures/groq_offline_fixture.json    recorded AI answer incl. hallucinations (Stage 6)
-│   └── samples/                              CSV examples: customer360 (7 files), customer360_messy (refused on purpose)
-├── storage/                     runtime output (git-ignored)
-│   ├── catalog/                 schema catalog (Stage 3)
-│   ├── ontology_repo/<id>/      ontology versions vNNNN.json + audit.jsonl (Stage 9)
-│   ├── graphs/<id>/<build_id>/  graph snapshots + CURRENT pointer (Stage 16)
-│   └── logs/ai_requests.jsonl   every AI request (Stage 6)
-├── scripts/run_pipeline.py      CLI runner
-├── src/kg/
-│   ├── config.py                settings from environment
-│   ├── pipeline.py              run_all(): stages 1-16 in order
-│   ├── viz.py                   PyVis renderers (graph, ontology, schema)
-│   ├── core/
-│   │   ├── ontology_models.py   Pydantic ontology model (classes, attributes, relationships, mapping)
-│   │   ├── ontology_draft.py    rule-based ontology draft from a SchemaCatalog (Stage 5 "Draft from the schema")
-│   │   ├── naming.py            file / column / table names -> valid class, attribute, relationship names
-│   │   ├── schema_models.py     SchemaCatalog + PostgreSQL type compatibility
-│   │   ├── transform.py         normalise, coerce, canonical keys, node ids
-│   │   └── context.py           PipelineContext (stage hand-off + activity log) and stage list
-│   ├── sources/
-│   │   ├── base.py              read-only DataSource interface
-│   │   ├── postgres_source.py   psycopg 3 pool, pg_catalog introspection, keyset batches
-│   │   ├── csv_source.py        several uploaded CSV files -> one schema (types, keys, links) behind DataSource
-│   │   ├── sample_source.py     in-memory source (same interface)
-│   │   └── sample_data.py       sample tables with deliberate data problems
-│   └── stages/                  ONE FILE PER STAGE, each exposes run(ctx, ...)
-│       ├── s01_scope.py                Part A · Prepare
-│       ├── s02_connect.py
-│       ├── s03_schema_extraction.py
-│       ├── s04_schema_analysis.py
-│       ├── s05_manual_ontology.py      Part B · Ontology
-│       ├── s06_ai_suggestions.py
-│       ├── s07_review_approval.py
-│       ├── s08_ontology_validation.py
-│       ├── s09_ontology_repository.py
-│       ├── s10_build_plan.py
-│       ├── s11_extraction.py           Part C · Build
-│       ├── s12_data_quality.py
-│       ├── s13_cleaning_er.py
-│       ├── s14_graph_builder.py
-│       ├── s15_graph_validation.py
-│       └── s16_graph_persistence.py
-├── ui/
-│   ├── app.py                   Streamlit entry (navigation grouped by part)
-│   ├── components/              bootstrap (session context), layout (stage header, guard, log), graph_view
-│   └── pages/                   home.py, s01_scope.py … s16_store.py, explorer.py (one screen per stage)
-└── tests/                       pytest: csv_source, ontology_draft, pipeline on files, UI click-through, CLI
+enterprices_kg/
+├── backend/                         application layer: stages, config, file stores. No UI. Depends on data_pipeline.
+│   ├── app/
+│   │   ├── core/                    config.py (settings from env), stage_registry.py (the 16 stages in 3 parts)
+│   │   ├── domain/                  pipeline_context.py (stage hand-off + activity log)
+│   │   ├── services/
+│   │   │   ├── sources/stages/      Part A   s01_scope … s04_schema_analysis
+│   │   │   ├── ontology/stages/     Part B   s05_manual_ontology … s10_build_plan
+│   │   │   └── build/               Part C   stages/ s11_extraction … s16_graph_persistence; orchestrator.py (run_all)
+│   │   └── repositories/file/       ontology_repository.py (versions + audit), snapshot_store.py (graph snapshots, CURRENT)
+│   └── tests/                       test_pipeline_csv.py (all stages on files, CLI)
+├── data_pipeline/                   pure library: no web framework, no UI, no import from backend
+│   ├── src/kg_pipeline/
+│   │   ├── models/                  ontology_models, schema_models, naming
+│   │   ├── preprocessing/           normalizer.py; connectors/ (csv_source, postgres_source, sample_source, sample_data, base)
+│   │   ├── metadata_extractor/      key_detector.py (table kinds, undeclared FKs, relationship candidates)
+│   │   ├── ontology_compiler/       compiler.py (rule-based draft), validator.py (ontology validation)
+│   │   ├── graph_builder/           id_generator.py, graph_validator.py, loaders/neo4j_loader.py
+│   │   └── graph_algorithms/        traversal.py (neighbourhood, shortest connection), centrality.py
+│   └── tests/                       test_csv_source, test_naming, test_ontology_draft
+├── legacy/streamlit/                the current UI, kept until the React frontend replaces it
+│   ├── streamlit_app.py             entry point (not named app.py: that would shadow backend/app)
+│   ├── .streamlit/config.toml       UI theme
+│   ├── components/                  bootstrap (session context), layout, graph_view, viz (PyVis)
+│   ├── pages/                       home.py, s01_scope.py … s16_store.py, explorer.py (one screen per stage)
+│   └── tests/test_ui.py             drives the real Streamlit app screen by screen
+├── frontend/                        React app: folder scaffold only, no code yet (see frontend/README.md)
+├── database/postgres/               seed/01_source_schema.sql (sample source), init/02_kg_meta_schema.sql (kg_meta DDL)
+├── data/                            ontologies/, fixtures/ (recorded AI answer), samples/ (CSV examples)
+├── scripts/run_pipeline.py          CLI runner
+├── docs/architecture.md             layers and dependency rules
+├── storage/                         runtime output (git-ignored)
+│   ├── catalog/                     schema catalog (Stage 3)
+│   ├── ontology_repo/<id>/          ontology versions vNNNN.json + audit.jsonl (Stage 9)
+│   ├── graphs/<id>/<build_id>/      graph snapshots + CURRENT pointer (Stage 16)
+│   └── logs/ai_requests.jsonl       every AI request (Stage 6)
+├── conftest.py, pytest.ini          shared test setup and import paths
+└── requirements.txt, requirements-dev.txt, .env.example
 ```
+
+Dependency direction: `legacy/streamlit` (and later `frontend` via an API) → `backend` → `data_pipeline`. Never the other way.
+
+Folders that exist as an empty scaffold (each holds only a `.gitkeep`; they follow the target skeleton and are filled as
+features are built): `.github/workflows`, `docker/`, `backend/migrations`, most of `backend/app` beyond the stage services
+(`api/`, `dto/`, `entities/`, `security/`, `workers/`, `database/`, `exceptions/`, …), `backend/tests/{unit,integration,contract}`,
+`frontend/src/*`, `database/neo4j`, `contracts/`, `docs/decisions`.
 
 ## The stages
 

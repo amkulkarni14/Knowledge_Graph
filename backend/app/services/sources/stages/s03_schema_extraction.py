@@ -8,9 +8,9 @@ Out  : ctx.catalog (+ storage/catalog/catalog.json).
 """
 from __future__ import annotations
 
-from kg.config import settings
-from kg.core.context import PipelineContext
-from kg.core.schema_models import SchemaCatalog
+from app.core.config import settings
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.models.schema_models import SchemaCatalog
 
 
 def run(ctx: PipelineContext) -> SchemaCatalog:

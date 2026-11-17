@@ -94,16 +94,3 @@ def schema_html(catalog, analysis: list[dict] | None = None, height: str = "460p
             net.add_edge(c["table"], c["probably_references"], label=f"{c['column']} (no FK!)",
                          color="#E45756", dashes=True)
     return net.generate_html(notebook=False)
-
-
-def ego(G: nx.MultiDiGraph, node: str, radius: int = 1) -> nx.MultiDiGraph:
-    radius = max(1, min(radius, 3))
-    keep = nx.ego_graph(G.to_undirected(as_view=True), node, radius=radius).nodes
-    return G.subgraph(keep).copy()
-
-
-def limit_graph(G: nx.MultiDiGraph, max_nodes: int = 300, labels: set[str] | None = None) -> nx.MultiDiGraph:
-    nodes = [n for n, d in G.nodes(data=True) if not labels or d.get("label") in labels]
-    if len(nodes) > max_nodes:
-        nodes = sorted(nodes, key=lambda n: G.degree(n), reverse=True)[:max_nodes]
-    return G.subgraph(nodes).copy()

@@ -15,9 +15,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from kg.core.context import PipelineContext
-from kg.core.transform import CoercionError, canon_key, coerce, node_id, normalize
-from kg.stages.s12_data_quality import RULES
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.graph_builder.id_generator import canon_key, node_id
+from kg_pipeline.preprocessing.normalizer import CoercionError, coerce, normalize
+from app.services.build.stages.s12_data_quality import RULES
 
 
 @dataclass

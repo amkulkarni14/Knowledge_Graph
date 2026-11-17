@@ -2,8 +2,8 @@ import re
 
 import pytest
 
-from kg.core.naming import split_words, to_class_name, to_snake, to_upper_snake, unique_name
-from kg.core.ontology_models import ATTR_NAME_RE, CLASS_NAME_RE, REL_NAME_RE
+from kg_pipeline.models.naming import split_words, to_class_name, to_snake, to_upper_snake, unique_name
+from kg_pipeline.models.ontology_models import ATTR_NAME_RE, CLASS_NAME_RE, REL_NAME_RE
 
 
 @pytest.mark.parametrize("text,words", [

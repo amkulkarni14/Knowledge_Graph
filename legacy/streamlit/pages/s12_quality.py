@@ -1,7 +1,7 @@
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.stages import s12_data_quality as s12
+from app.services.build.stages import s12_data_quality as s12
 
 ctx = stage_header(12)
 SEV = {"block": "⛔ block", "quarantine": "🟠 quarantine", "warn": "🟡 warn"}

@@ -1,8 +1,8 @@
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.config import settings
-from kg.stages import s06_ai_suggestions as s6
+from app.core.config import settings
+from app.services.ontology.stages import s06_ai_suggestions as s6
 
 ctx = stage_header(6)
 STATUS_ICON = {"valid": "🟢 valid", "needs_review": "🟡 needs review", "invalid": "🔴 invalid"}

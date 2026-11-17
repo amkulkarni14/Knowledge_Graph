@@ -4,8 +4,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Iterator, Optional
 
-from kg.core.schema_models import SchemaCatalog
-from kg.sources import sample_data
+from kg_pipeline.models.schema_models import SchemaCatalog
+from kg_pipeline.preprocessing.connectors import sample_data
 
 
 def _sortable(values) -> tuple:

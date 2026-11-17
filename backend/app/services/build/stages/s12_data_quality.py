@@ -14,9 +14,10 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import Any, Callable
 
-from kg.core.context import PipelineContext
-from kg.core.ontology_models import Ontology
-from kg.core.transform import CoercionError, canon_key, coerce, normalize
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.models.ontology_models import Ontology
+from kg_pipeline.graph_builder.id_generator import canon_key
+from kg_pipeline.preprocessing.normalizer import CoercionError, coerce, normalize
 
 RULES: dict[str, Callable[[Any, Any], bool]] = {
     "non_negative": lambda v, _: v is None or float(v) >= 0,

@@ -5,13 +5,13 @@ import pytest
 from conftest import csv_file
 from pydantic import ValidationError
 
-from kg.core.ontology_draft import draft_from_catalog
-from kg.core.ontology_models import Cardinality, Ontology, OntologyStatus
-from kg.core.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
-from kg.sources import sample_data
-from kg.sources.csv_source import UploadLimits, build_csv_source
-from kg.stages.s04_schema_analysis import classify_table
-from kg.stages.s08_ontology_validation import validate_ontology
+from kg_pipeline.ontology_compiler.compiler import draft_from_catalog
+from kg_pipeline.models.ontology_models import Cardinality, Ontology, OntologyStatus
+from kg_pipeline.models.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
+from kg_pipeline.preprocessing.connectors import sample_data
+from kg_pipeline.preprocessing.connectors.csv_source import UploadLimits, build_csv_source
+from kg_pipeline.metadata_extractor.key_detector import classify_table
+from kg_pipeline.ontology_compiler.validator import validate_ontology
 
 
 def draft(catalog, **kw):

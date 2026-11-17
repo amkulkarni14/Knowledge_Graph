@@ -1,17 +1,17 @@
-"""Makes `src/` importable and keeps one PipelineContext per browser session."""
+"""Makes the backend and the pipeline library importable and keeps one PipelineContext per browser session."""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+ROOT = Path(__file__).resolve().parents[3]
+for _path in (ROOT / "data_pipeline" / "src", ROOT / "backend"):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 
 import streamlit as st  # noqa: E402
 
-from kg.core.context import PipelineContext  # noqa: E402
+from app.domain.pipeline_context import PipelineContext  # noqa: E402
 
 
 def get_ctx() -> PipelineContext:

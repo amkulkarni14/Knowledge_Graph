@@ -1,10 +1,11 @@
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.stages import s09_ontology_repository as s9
+from app.services.ontology.stages import s09_ontology_repository as s9
+from app.repositories.file.ontology_repository import OntologyRepository
 
 ctx = stage_header(9)
-repo = s9.OntologyRepository()
+repo = OntologyRepository()
 
 st.graphviz_chart("""digraph { rankdir=LR; node [shape=box style="rounded,filled" fontname="Segoe UI" fontsize=10];
  draft [fillcolor="#EEE7F6"]; pending_review [fillcolor="#FFF6D6"]; approved [fillcolor="#E3F2E7"];

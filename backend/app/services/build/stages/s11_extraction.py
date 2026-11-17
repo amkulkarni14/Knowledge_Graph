@@ -15,9 +15,9 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 
-from kg.config import settings
-from kg.core.context import PipelineContext
-from kg.sources.sample_source import SampleSource
+from app.core.config import settings
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.preprocessing.connectors.sample_source import SampleSource
 
 
 @dataclass

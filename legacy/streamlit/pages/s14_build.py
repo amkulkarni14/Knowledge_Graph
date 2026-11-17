@@ -2,8 +2,8 @@ import streamlit as st
 
 from components.graph_view import show_graph
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg import viz
-from kg.stages import s14_graph_builder as s14
+from kg_pipeline.graph_algorithms import traversal
+from app.services.build.stages import s14_graph_builder as s14
 
 ctx = stage_header(14)
 if guard(ctx, 13):
@@ -47,8 +47,8 @@ Graph type: **`nx.MultiDiGraph`** (directed + several relationship types per pai
         radius = f3.slider("Hops", 1, 3, 2, disabled=focus == "(whole graph)")
         hide_pii = f4.toggle("Hide PII", value=True)
         pii = {a.name for c in ctx.approved_ontology.classes for a in c.attributes if a.pii} if hide_pii else set()
-        sub = viz.ego(G, focus, radius) if focus != "(whole graph)" else G
-        sub = viz.limit_graph(sub, 300, show)
+        sub = traversal.ego(G, focus, radius) if focus != "(whole graph)" else G
+        sub = traversal.limit_graph(sub, 300, show)
         st.caption(f"Showing {sub.number_of_nodes()} nodes / {sub.number_of_edges()} edges "
                    "(the browser only gets a bounded subgraph). Hover for properties; drag to rearrange.")
         show_graph(sub, 600, hide=pii, highlight={focus})

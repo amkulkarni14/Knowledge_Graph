@@ -14,13 +14,13 @@ from __future__ import annotations
 import json
 import re
 
-from kg.config import ONTOLOGY_DIR
-from kg.core.context import PipelineContext
-from kg.core.ontology_draft import OntologyDraft, draft_from_catalog
-from kg.core.ontology_models import (AttributeDef, ClassDef, ClassMapping, Ontology, OntologyStatus,
+from app.core.config import ONTOLOGY_DIR
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.ontology_compiler.compiler import OntologyDraft, draft_from_catalog
+from kg_pipeline.models.ontology_models import (AttributeDef, ClassDef, ClassMapping, Ontology, OntologyStatus,
                                      RelationshipDef, RelationshipMapping)
-from kg.core.schema_models import SchemaCatalog
-from kg.stages.s04_schema_analysis import classify_table
+from kg_pipeline.models.schema_models import SchemaCatalog
+from kg_pipeline.metadata_extractor.key_detector import classify_table
 
 
 def default_ids(project: str) -> tuple[str, str, str]:

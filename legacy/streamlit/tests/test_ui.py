@@ -1,16 +1,16 @@
-"""Drives the real Streamlit app (ui/app.py) page by page, the way a person would, using uploaded CSV files."""
+"""Drives the real Streamlit app (legacy/streamlit/streamlit_app.py) page by page, the way a person would, using uploaded CSV files."""
 from __future__ import annotations
 
 import pytest
 from conftest import ROOT
 from streamlit.testing.v1 import AppTest
 
-from kg.config import SAMPLE_FILES_DIR
-from kg.core.context import PipelineContext
-from kg.sources.csv_source import read_directory
-from kg.stages import s01_scope
+from app.core.config import SAMPLE_FILES_DIR
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.preprocessing.connectors.csv_source import read_directory
+from app.services.sources.stages import s01_scope
 
-APP = str(ROOT / "ui" / "app.py")
+APP = str(ROOT / "legacy" / "streamlit" / "streamlit_app.py")
 
 
 def new_app(ctx: PipelineContext | None = None) -> AppTest:

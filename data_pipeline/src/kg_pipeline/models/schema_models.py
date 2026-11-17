@@ -9,7 +9,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from kg.core.ontology_models import DataType
+from kg_pipeline.models.ontology_models import DataType
 
 PG_TYPE_MAP: dict[str, DataType] = {
     "smallint": DataType.INTEGER, "integer": DataType.INTEGER, "bigint": DataType.INTEGER,

@@ -2,9 +2,9 @@ import pandas as pd
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.config import SAMPLE_FILES_DIR
-from kg.sources.csv_source import CsvImportError, CsvUpload, UploadLimits, read_directory
-from kg.stages import s02_connect
+from app.core.config import SAMPLE_FILES_DIR
+from kg_pipeline.preprocessing.connectors.csv_source import CsvImportError, CsvUpload, read_directory
+from app.services.sources.stages import s02_connect
 
 SAMPLE, CSV, POSTGRES = "Sample retail database (in memory, no setup)", "Upload CSV files", "PostgreSQL"
 
@@ -38,13 +38,13 @@ ctx = stage_header(2)
 if guard(ctx, 1):
     mode = st.radio("Data source", [SAMPLE, CSV, POSTGRES], horizontal=True)
     if mode == SAMPLE:
-        st.info("Same tables and rows as `sql/01_source_schema.sql`, including deliberate data problems "
+        st.info("Same tables and rows as `database/postgres/seed/01_source_schema.sql`, including deliberate data problems "
                 "(duplicate customer, orphan order, negative price, undeclared FK) so every stage has "
                 "something to show.")
         if st.button("Connect to sample database", type="primary"):
             run_stage(s02_connect.connect_sample, ctx, success="Connected")
     elif mode == CSV:
-        limits = UploadLimits.from_settings()
+        limits = s02_connect.upload_limits()
         st.info("Select **several CSV files at once**. Each file becomes a table (its name is the table name). "
                 "The pipeline works out each table's key and which columns link the files together, then "
                 "Stage 5 can draft the ontology from that. Files are read in memory and never written to disk.")

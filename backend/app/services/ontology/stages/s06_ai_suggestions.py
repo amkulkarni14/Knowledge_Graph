@@ -24,10 +24,10 @@ from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ValidationError
 
-from kg.config import FIXTURE_DIR, settings
-from kg.core.context import PipelineContext
-from kg.core.ontology_models import AttributeDef, Cardinality, ClassDef, DataType, Ontology
-from kg.core.schema_models import COMPATIBLE, SchemaCatalog
+from app.core.config import FIXTURE_DIR, settings
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.models.ontology_models import AttributeDef, Cardinality, ClassDef, DataType, Ontology
+from kg_pipeline.models.schema_models import COMPATIBLE, SchemaCatalog
 
 SENSITIVE_COLUMN_RE = re.compile(
     r"(email|phone|mobile|name|address|ssn|pan|aadhaar|dob|birth|password|token)", re.I)

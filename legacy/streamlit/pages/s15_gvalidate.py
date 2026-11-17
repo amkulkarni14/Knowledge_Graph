@@ -1,7 +1,7 @@
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.stages import s15_graph_validation as s15
+from app.services.build.stages import s15_graph_validation as s15
 
 ctx = stage_header(15)
 if guard(ctx, 14):

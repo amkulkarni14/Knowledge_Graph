@@ -2,11 +2,11 @@
 import networkx as nx
 import streamlit as st
 
+from app.core.config import settings
+from app.repositories.file import snapshot_store
 from components.graph_view import show_graph
 from components.layout import table
-from kg import viz
-from kg.config import settings
-from kg.stages import s16_graph_persistence as s16
+from kg_pipeline.graph_algorithms import centrality, traversal
 
 st.markdown('<div class="kg-hero"><span class="kg-badge">Reads from the graph store, not from memory</span>'
             '<h1>🧭 Graph Store Explorer</h1><p>Loads a saved snapshot (checksum verified) and answers simple '
@@ -20,7 +20,7 @@ if not oids:
 
 c1, c2 = st.columns(2)
 oid = c1.selectbox("Ontology", oids)
-builds = s16.list_builds(oid)
+builds = snapshot_store.list_builds(oid)
 if not builds:
     st.info("No builds for this ontology.")
     st.stop()
@@ -31,7 +31,7 @@ build_id = choice.split()[0]
 
 @st.cache_resource(show_spinner="Loading snapshot...")
 def load(o: str, b: str) -> nx.MultiDiGraph:
-    return s16.load_graph(o, b)
+    return snapshot_store.load_graph(o, b)
 
 
 try:
@@ -52,27 +52,20 @@ with tab1:
     a, b = st.columns([2, 1])
     n = a.selectbox("Node", nodes)
     r = b.slider("Hops", 1, 3, 1)
-    sub = viz.ego(G, n, r)
-    show_graph(viz.limit_graph(sub, 300), 520, hide={"email", "phone"}, highlight={n})
+    sub = traversal.ego(G, n, r)
+    show_graph(traversal.limit_graph(sub, 300), 520, hide={"email", "phone"}, highlight={n})
 with tab2:
     a, b = st.columns(2)
     x = a.selectbox("From", nodes, key="p_from")
     y = b.selectbox("To", nodes, index=min(len(nodes) - 1, 1), key="p_to")
-    U = G.to_undirected(as_view=True)
-    if nx.has_path(U, x, y):
-        path = nx.shortest_path(U, x, y)
-        hops = []
-        for p, q in zip(path, path[1:]):
-            d = G.get_edge_data(p, q) or G.get_edge_data(q, p)
-            hops.append({"from": p, "relationship": ("→ " if G.has_edge(p, q) else "← ") + next(iter(d.values()))["type"],
-                         "to": q})
+    connection = traversal.shortest_connection(G, x, y)
+    if connection:
+        path, hops = connection
         st.success(f"{len(path) - 1} hop(s)")
         table(hops)
         show_graph(G.subgraph(path).copy(), 360, hide={"email", "phone"}, highlight={x, y})
     else:
         st.warning("These nodes are not connected.")
 with tab3:
-    S = nx.Graph(G.to_undirected())
-    deg = nx.degree_centrality(S)
-    table([{"node": k, "class": G.nodes[k]["label"], "degree centrality": round(v, 3), "links": S.degree(k)}
-           for k, v in sorted(deg.items(), key=lambda kv: -kv[1])[:15]])
+    table([{"node": r["node"], "class": r["label"], "degree centrality": round(r["centrality"], 3), "links": r["links"]}
+           for r in centrality.degree_ranking(G, 15)])

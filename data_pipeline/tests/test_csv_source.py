@@ -6,7 +6,7 @@ from datetime import date, datetime
 import pytest
 from conftest import csv_file
 
-from kg.sources.csv_source import (BIGINT, BOOL, DATE, DOUBLE, TEXT, TS, TSTZ, CsvImportError, CsvUpload,
+from kg_pipeline.preprocessing.connectors.csv_source import (BIGINT, BOOL, DATE, DOUBLE, TEXT, TS, TSTZ, CsvImportError, CsvUpload,
                                    UploadLimits, build_csv_source)
 
 

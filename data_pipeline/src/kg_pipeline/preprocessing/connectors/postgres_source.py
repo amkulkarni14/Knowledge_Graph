@@ -13,7 +13,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Iterator, Optional
 
-from kg.core.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
+from kg_pipeline.models.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
 
 log = logging.getLogger(__name__)
 

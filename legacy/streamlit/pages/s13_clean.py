@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.stages import s13_cleaning_er as s13
+from app.services.build.stages import s13_cleaning_er as s13
 
 ctx = stage_header(13)
 if guard(ctx, 12):

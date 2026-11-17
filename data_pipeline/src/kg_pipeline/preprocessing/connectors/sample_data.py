@@ -1,4 +1,4 @@
-"""In-memory copy of sql/01_source_schema.sql so the prototype runs without a database.
+"""In-memory copy of database/postgres/seed/01_source_schema.sql so the prototype runs without a database.
 
 Values use the same Python types psycopg returns (date, datetime, Decimal).
 """
@@ -7,7 +7,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal as D
 
-from kg.core.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
+from kg_pipeline.models.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
 
 T0 = datetime(2026, 11, 1, 9, 0)
 T1 = datetime(2026, 11, 9, 18, 30)

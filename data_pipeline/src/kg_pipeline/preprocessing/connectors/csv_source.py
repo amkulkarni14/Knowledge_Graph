@@ -24,9 +24,9 @@ from itertools import combinations
 from pathlib import Path
 from typing import Optional, Sequence
 
-from kg.core.naming import singularize, split_words, to_snake, unique_name
-from kg.core.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
-from kg.sources.sample_source import SampleSource
+from kg_pipeline.models.naming import singularize, split_words, to_snake, unique_name
+from kg_pipeline.models.schema_models import ColumnInfo, ForeignKey, SchemaCatalog, TableInfo
+from kg_pipeline.preprocessing.connectors.sample_source import SampleSource
 
 SCHEMA = "csv"
 ALLOWED_EXTENSIONS = (".csv", ".tsv", ".txt")
@@ -77,11 +77,6 @@ class UploadLimits:
     max_files: int = 25
     max_bytes: int = 25 * 1024 * 1024
     max_rows: int = 200_000
-
-    @classmethod
-    def from_settings(cls) -> "UploadLimits":
-        from kg.config import settings
-        return cls(settings.max_upload_files, settings.max_upload_mb * 1024 * 1024, settings.max_upload_rows)
 
 
 @dataclass
@@ -484,7 +479,7 @@ def _build_table(upload: CsvUpload, limits: UploadLimits, taken: set[str], index
 
 def build_csv_source(uploads: Sequence[CsvUpload], limits: UploadLimits | None = None) -> CsvSource:
     """Parse, type and link all files. Either every file is usable or CsvImportError lists what is wrong."""
-    limits = limits or UploadLimits.from_settings()
+    limits = limits or UploadLimits()
     if not uploads:
         raise CsvImportError("choose at least one CSV file")
     if len(uploads) > limits.max_files:

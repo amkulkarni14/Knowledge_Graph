@@ -1,18 +1,16 @@
-"""Shared test setup: make src/ and ui/ importable and keep every test's output out of the real storage/ folder."""
+"""Shared test setup for backend/, data_pipeline/ and legacy/streamlit/ (pytest.ini puts the code on sys.path).
+
+Keeps every test's output out of the real storage/ folder."""
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-for p in (ROOT / "src", ROOT / "ui"):
-    if str(p) not in sys.path:
-        sys.path.insert(0, str(p))
+ROOT = Path(__file__).resolve().parent
 
-from kg.config import SAMPLE_FILES_DIR, settings  # noqa: E402
-from kg.sources.csv_source import CsvUpload, UploadLimits, read_directory  # noqa: E402
+from app.core.config import SAMPLE_FILES_DIR, settings  # noqa: E402
+from kg_pipeline.preprocessing.connectors.csv_source import CsvUpload, UploadLimits, read_directory  # noqa: E402
 
 
 @pytest.fixture(autouse=True)

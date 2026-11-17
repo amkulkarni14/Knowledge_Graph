@@ -15,10 +15,10 @@ from typing import Iterable
 
 from pydantic import BaseModel
 
-from kg.core.naming import NAME_LIMIT, split_words, to_class_name, to_snake, to_upper_snake, unique_name
-from kg.core.ontology_models import (AttributeDef, Cardinality, ClassDef, ClassMapping, DataType, Ontology,
+from kg_pipeline.models.naming import NAME_LIMIT, split_words, to_class_name, to_snake, to_upper_snake, unique_name
+from kg_pipeline.models.ontology_models import (AttributeDef, Cardinality, ClassDef, ClassMapping, DataType, Ontology,
                                      OntologyStatus, RelationshipDef, RelationshipMapping)
-from kg.core.schema_models import ForeignKey, SchemaCatalog, TableInfo
+from kg_pipeline.models.schema_models import ForeignKey, SchemaCatalog, TableInfo
 
 # Names the graph builder writes itself on nodes / edges; an ontology attribute with one of these would overwrite it.
 RESERVED_NODE_ATTRIBUTES = frozenset({"label", "source_table", "source_key", "merged_ids", "_resolution_key"})

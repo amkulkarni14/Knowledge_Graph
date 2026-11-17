@@ -3,12 +3,11 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from kg.core.context import PipelineContext
-from kg.sources.csv_source import CsvUpload
-from kg.stages import (s01_scope, s02_connect, s03_schema_extraction, s04_schema_analysis, s05_manual_ontology,
-                       s06_ai_suggestions, s07_review_approval, s08_ontology_validation, s09_ontology_repository,
-                       s10_build_plan, s11_extraction, s12_data_quality, s13_cleaning_er, s14_graph_builder,
-                       s15_graph_validation, s16_graph_persistence)
+from app.domain.pipeline_context import PipelineContext
+from kg_pipeline.preprocessing.connectors.csv_source import CsvUpload
+from app.services.sources.stages import s01_scope, s02_connect, s03_schema_extraction, s04_schema_analysis
+from app.services.ontology.stages import s05_manual_ontology, s06_ai_suggestions, s07_review_approval, s08_ontology_validation, s09_ontology_repository, s10_build_plan
+from app.services.build.stages import s11_extraction, s12_data_quality, s13_cleaning_er, s14_graph_builder, s15_graph_validation, s16_graph_persistence
 
 
 def run_all(ctx: PipelineContext, postgres: dict | None = None, use_groq: bool = False,

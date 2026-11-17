@@ -1,14 +1,14 @@
 import streamlit as st
 
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.stages import s03_schema_extraction as s3
+from app.services.sources.stages import s03_schema_extraction as s3
 
 ctx = stage_header(3)
 if guard(ctx, 1, 2):
     if st.button("Read database structure", type="primary"):
         run_stage(s3.run, ctx, success="Schema catalog created")
     with st.expander("SQL used (pg_catalog, no business data)"):
-        from kg.sources.postgres_source import COLUMNS_SQL, CONSTRAINTS_SQL
+        from kg_pipeline.preprocessing.connectors.postgres_source import COLUMNS_SQL, CONSTRAINTS_SQL
         st.code(COLUMNS_SQL.strip() + "\n\n" + CONSTRAINTS_SQL.strip(), language="sql")
 
     cat = ctx.catalog

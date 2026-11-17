@@ -7,7 +7,8 @@ import pandas as pd
 import streamlit as st
 
 from components.bootstrap import get_ctx
-from kg.core.context import PARTS, STAGES, PipelineContext
+from app.core.stage_registry import PARTS, STAGES
+from app.domain.pipeline_context import PipelineContext
 
 PAGE_FILES = {s["no"]: f"pages/s{s['no']:02d}_{s['key']}.py" for s in STAGES}
 BY_NO = {s["no"]: s for s in STAGES}

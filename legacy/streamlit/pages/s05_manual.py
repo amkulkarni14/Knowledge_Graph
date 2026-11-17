@@ -3,8 +3,8 @@ import streamlit as st
 
 from components.graph_view import show_ontology
 from components.layout import activity, guard, next_stage, run_stage, stage_header, table
-from kg.core.ontology_models import AttributeDef, Cardinality, DataType
-from kg.stages import s05_manual_ontology as s5
+from kg_pipeline.models.ontology_models import AttributeDef, Cardinality, DataType
+from app.services.ontology.stages import s05_manual_ontology as s5
 
 ctx = stage_header(5)
 if guard(ctx, 3, 4):
