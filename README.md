@@ -13,7 +13,7 @@ python -m venv .venv ; .venv\Scripts\activate
 pip install -r requirements.txt
 
 # UI (run from the project root so .streamlit/config.toml is picked up)
-streamlit run ui/app.py
+streamlit run legacy/streamlit/app.py
 
 # Headless, same code as the UI
 python scripts/run_pipeline.py              # built-in sample data + offline AI response
@@ -23,10 +23,10 @@ python scripts/run_pipeline.py --csv-dir data/samples/customer360   # every .csv
 
 # Tests (200): CSV source, ontology drafting, all 16 stages on files, the Streamlit screens, the CLI
 pip install -r requirements-dev.txt
-python -m pytest tests
+python -m pytest data_pipeline/tests
 ```
 
-To try a real database: `psql -d retail -f sql/01_source_schema.sql`, copy `.env.example` to
+To try a real database: `psql -d retail -f database/postgres/init/01_source_schema.sql`, copy `.env.example` to
 `.env`, fill the `PG*` values, then choose **PostgreSQL** in Stage 2.
 
 To try files: Stage 2 → **Upload CSV files** → select several files at once (or use the bundled Customer 360
@@ -35,62 +35,117 @@ examples), then Stage 5 → **🪄 Draft from the schema**. See [Uploading CSV f
 ## Folder structure
 
 ```
-Enterprices_KG/
-├── .env.example                 settings template (secrets come from env / vault, never code)
-├── .streamlit/config.toml       UI theme
-├── requirements.txt
-├── sql/
-│   ├── 01_source_schema.sql     sample retail source + indexes + read-only role
-│   └── 02_kg_meta_schema.sql    production DDL for the ontology repository / build metadata
+Knowledge_Graph/
+├── .env.example
+├── .gitignore
+├── .streamlit/
+│   └── config.toml
+├── README.md
 ├── data/
-│   ├── ontologies/retail_manual_draft.json   example manual draft (Stage 5)
-│   ├── fixtures/groq_offline_fixture.json    recorded AI answer incl. hallucinations (Stage 6)
-│   └── samples/                              CSV examples: customer360 (7 files), customer360_messy (refused on purpose)
-├── storage/                     runtime output (git-ignored)
-│   ├── catalog/                 schema catalog (Stage 3)
-│   ├── ontology_repo/<id>/      ontology versions vNNNN.json + audit.jsonl (Stage 9)
-│   ├── graphs/<id>/<build_id>/  graph snapshots + CURRENT pointer (Stage 16)
-│   └── logs/ai_requests.jsonl   every AI request (Stage 6)
-├── scripts/run_pipeline.py      CLI runner
-├── src/kg/
-│   ├── config.py                settings from environment
-│   ├── pipeline.py              run_all(): stages 1-16 in order
-│   ├── viz.py                   PyVis renderers (graph, ontology, schema)
-│   ├── core/
-│   │   ├── ontology_models.py   Pydantic ontology model (classes, attributes, relationships, mapping)
-│   │   ├── ontology_draft.py    rule-based ontology draft from a SchemaCatalog (Stage 5 "Draft from the schema")
-│   │   ├── naming.py            file / column / table names -> valid class, attribute, relationship names
-│   │   ├── schema_models.py     SchemaCatalog + PostgreSQL type compatibility
-│   │   ├── transform.py         normalise, coerce, canonical keys, node ids
-│   │   └── context.py           PipelineContext (stage hand-off + activity log) and stage list
-│   ├── sources/
-│   │   ├── base.py              read-only DataSource interface
-│   │   ├── postgres_source.py   psycopg 3 pool, pg_catalog introspection, keyset batches
-│   │   ├── csv_source.py        several uploaded CSV files -> one schema (types, keys, links) behind DataSource
-│   │   ├── sample_source.py     in-memory source (same interface)
-│   │   └── sample_data.py       sample tables with deliberate data problems
-│   └── stages/                  ONE FILE PER STAGE, each exposes run(ctx, ...)
-│       ├── s01_scope.py                Part A · Prepare
-│       ├── s02_connect.py
-│       ├── s03_schema_extraction.py
-│       ├── s04_schema_analysis.py
-│       ├── s05_manual_ontology.py      Part B · Ontology
-│       ├── s06_ai_suggestions.py
-│       ├── s07_review_approval.py
-│       ├── s08_ontology_validation.py
-│       ├── s09_ontology_repository.py
-│       ├── s10_build_plan.py
-│       ├── s11_extraction.py           Part C · Build
-│       ├── s12_data_quality.py
-│       ├── s13_cleaning_er.py
-│       ├── s14_graph_builder.py
-│       ├── s15_graph_validation.py
-│       └── s16_graph_persistence.py
-├── ui/
-│   ├── app.py                   Streamlit entry (navigation grouped by part)
-│   ├── components/              bootstrap (session context), layout (stage header, guard, log), graph_view
-│   └── pages/                   home.py, s01_scope.py … s16_store.py, explorer.py (one screen per stage)
-└── tests/                       pytest: csv_source, ontology_draft, pipeline on files, UI click-through, CLI
+│   ├── fixtures/
+│   │   └── groq_offline_fixture.json
+│   ├── ontologies/
+│   │   └── retail_manual_draft.json
+│   └── samples/
+│       ├── README.md
+│       ├── customer360/
+│       │   ├── accounts.csv
+│       │   ├── banks.csv
+│       │   ├── credit_enquiry.csv
+│       │   ├── credit_score.csv
+│       │   ├── customers.csv
+│       │   ├── loans.csv
+│       │   └── payments.csv
+│       └── customer360_messy/
+│           ├── customers.csv
+│           └── loans.csv
+├── data_pipeline/
+│   ├── src/
+│   │   └── kg_pipeline/
+│   │       ├── __init__.py
+│   │       ├── config.py
+│   │       ├── core/
+│   │       │   ├── __init__.py
+│   │       │   ├── context.py
+│   │       │   ├── naming.py
+│   │       │   ├── ontology_models.py
+│   │       │   ├── s01_scope.py
+│   │       │   └── schema_models.py
+│   │       ├── graph_builder/
+│   │       │   ├── __init__.py
+│   │       │   ├── loaders/
+│   │       │   │   └── s16_graph_persistence.py
+│   │       │   ├── s10_build_plan.py
+│   │       │   ├── s14_graph_builder.py
+│   │       │   └── s15_graph_validation.py
+│   │       ├── metadata_extractor/
+│   │       │   ├── s03_schema_extraction.py
+│   │       │   └── s04_schema_analysis.py
+│   │       ├── ontology_compiler/
+│   │       │   ├── ontology_draft.py
+│   │       │   ├── s05_manual_ontology.py
+│   │       │   ├── s06_ai_suggestions.py
+│   │       │   ├── s07_review_approval.py
+│   │       │   ├── s08_ontology_validation.py
+│   │       │   └── s09_ontology_repository.py
+│   │       ├── pipeline.py
+│   │       └── preprocessing/
+│   │           ├── connectors/
+│   │           │   ├── __init__.py
+│   │           │   ├── base.py
+│   │           │   ├── csv_source.py
+│   │           │   ├── postgres_source.py
+│   │           │   ├── sample_data.py
+│   │           │   └── sample_source.py
+│   │           ├── s02_connect.py
+│   │           ├── s11_extraction.py
+│   │           ├── s12_data_quality.py
+│   │           ├── s13_cleaning_er.py
+│   │           └── transform.py
+│   └── tests/
+│       ├── conftest.py
+│       ├── test_csv_source.py
+│       ├── test_naming.py
+│       ├── test_ontology_draft.py
+│       ├── test_pipeline_csv.py
+│       └── test_ui.py
+├── database/
+│   └── postgres/
+│       └── init/
+│           ├── 01_source_schema.sql
+│           └── 02_kg_meta_schema.sql
+├── legacy/
+│   └── streamlit/
+│       ├── app.py
+│       ├── components/
+│       │   ├── __init__.py
+│       │   ├── bootstrap.py
+│       │   ├── graph_view.py
+│       │   ├── layout.py
+│       │   └── viz.py
+│       └── pages/
+│           ├── explorer.py
+│           ├── home.py
+│           ├── s01_scope.py
+│           ├── s02_connect.py
+│           ├── s03_schema.py
+│           ├── s04_analysis.py
+│           ├── s05_manual.py
+│           ├── s06_ai.py
+│           ├── s07_review.py
+│           ├── s08_validate.py
+│           ├── s09_repo.py
+│           ├── s10_plan.py
+│           ├── s11_extract.py
+│           ├── s12_quality.py
+│           ├── s13_clean.py
+│           ├── s14_build.py
+│           ├── s15_gvalidate.py
+│           └── s16_store.py
+├── requirements-dev.txt
+├── requirements.txt
+└── scripts/
+    └── run_pipeline.py
 ```
 
 ## The stages
