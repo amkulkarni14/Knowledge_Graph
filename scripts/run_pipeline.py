@@ -11,12 +11,14 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+ROOT = Path(__file__).resolve().parents[1]
+for _path in (ROOT / "data_pipeline" / "src", ROOT / "backend"):
+    sys.path.insert(0, str(_path))
 
-from kg.core.context import PipelineContext  # noqa: E402
-from kg.pipeline import run_all  # noqa: E402
-from kg.sources.csv_source import CsvImportError, read_directory  # noqa: E402
-from kg.stages import s02_connect  # noqa: E402
+from app.domain.pipeline_context import PipelineContext  # noqa: E402
+from app.services.build.orchestrator import run_all  # noqa: E402
+from kg_pipeline.preprocessing.connectors.csv_source import CsvImportError, read_directory  # noqa: E402
+from app.services.sources.stages import s02_connect  # noqa: E402
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
